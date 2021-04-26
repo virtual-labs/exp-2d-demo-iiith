@@ -1,10 +1,10 @@
 [
 {"question":" Rotation Transformation Q1. Which of the following describes the transformation shown on the right ? <img src='images/quiz_transform1.png'> ",
 "answers":{
-            "a":"90째 clockwise Rotation",
-            "b":"180째 clockwise Rotation",
-            "c":"90째 counter-clockwise Rotation",
-            "d":"270째 counter-clockwise Rotation"
+            "a":"90째¸ clockwise Rotation",
+            "b":"180째 ¸ clockwise Rotation",
+            "c":"90째 ¸ counter-clockwise Rotation",
+            "d":"270째 ¸ counter-clockwise Rotation"
           },
 "correctAnswer":"a"},
 
