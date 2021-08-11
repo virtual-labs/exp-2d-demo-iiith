@@ -1,18 +1,29 @@
 [
-{"question":"This is a Sample Question 1?",
+{"question":" Rotation Transformation Q1. Which of the following describes the transformation shown on the right ? <img src='images/quiz_transform1.png'> ",
 "answers":{
-            "a":"answer1",
-            "b":"answer2",
-            "c":"answer3",
-            "d":"answer4"
+            "a":"90째¸ clockwise Rotation",
+            "b":"180째 ¸ clockwise Rotation",
+            "c":"90째 ¸ counter-clockwise Rotation",
+            "d":"270째 ¸ counter-clockwise Rotation"
           },
 "correctAnswer":"a"},
-{"question":"This is a Sample Question 2?",
+
+{"question":" If the following operations are applied in order, then what is the composite matrix ? Translation T1 followed by Translation T2, followed Rotation R1, Scale S1, Scale S2 and Rotation R2",
 "answers":{
-            "a":"answer1",
-            "b":"answer2",
-            "c":"answer3",
-            "d":"answer4"
+            "a":"T<sub>1</sub>T<sub>2</sub>R<sub>1</sub>S<sub>1</sub>S<sub>2</sub>R<sub>2</sub>",
+            "b":"T<sub>1</sub>R<sub>1</sub>S<sub>1</sub>R<sub>2</sub>",
+            "c":"R<sub>2</sub>S<sub>2</sub>S<sub>1</sub>R<sub>1</sub>T<sub>2</sub>T<sub>1</sub>",
+            "d":"R<sub>2</sub>S<sub>2</sub>R<sub>1</sub>T<sub>2</sub>T<sub>1</sub>"
           },
-"correctAnswer":"c"} 
+"correctAnswer":"c"}, 
+
+{"question":"Is S<sub>1</sub>T<sub>1</sub>S<sub>2</sub>T<sub>2</sub> = T<sub>2</sub>S<sub>2</sub>T<sub>1</sub>S<sub>1</sub> ?",
+"answers":{
+            "a":"True",
+            "b":"False",
+            "c":"Valid",
+            "d":"Not Valid"
+          },
+"correctAnswer":"c"}
+
 ]
