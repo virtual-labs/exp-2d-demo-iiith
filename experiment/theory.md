@@ -8,9 +8,9 @@ Translations are commutative: T<sub>1</sub>T<sub>2</sub> = T<sub>2</sub>T<sub>1<
 
 Scaling is commutative: S<sub>1</sub>S<sub>2</sub> = S<sub>2</sub>S<sub>1</sub>
 
-Rotations are NOT commutative: R<sub>1</sub>R<sub>2</sub>  â  R<sub>2</sub>R<sub>1</sub>
+Rotations are NOT commutative: R<sub>1</sub>R<sub>2</sub>  &#226;  R<sub>2</sub>R<sub>1</sub>
 
-Also RT  â  TR. Consider the following matrix representation.
+Also RT  &#226;  TR. Consider the following matrix representation.
 
 <img src="images/rt-tr.png">
 
