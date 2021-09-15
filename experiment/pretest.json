@@ -1,10 +1,10 @@
 [
 {"question":"1. Rotation Transformation Q1. Which of the following describes the transformation shown on the right ? <img src='images/quiz_transform1.png'> ",
 "answers":{
-            "a":"90<sup>&deg;</sup¸ clockwise Rotation",
-            "b":"180<sup>&deg;</sup ¸ clockwise Rotation",
-            "c":"90<sup>&deg;</sup ¸ counter-clockwise Rotation",
-            "d":"270<sup>&deg;</sup ¸ counter-clockwise Rotation"
+            "a":"90<sup>o</sup¸ clockwise Rotation",
+            "b":"180<sup>o</sup ¸ clockwise Rotation",
+            "c":"90<sup>o</sup ¸ counter-clockwise Rotation",
+            "d":"270<sup>o</sup ¸ counter-clockwise Rotation"
           },
 "correctAnswer":"a"},
 
