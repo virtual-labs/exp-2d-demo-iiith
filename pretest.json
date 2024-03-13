@@ -1,0 +1,29 @@
+[
+{"question":"1. Rotation Transformation Q1. Which of the following describes the transformation shown on the right ? <img src='images/quiz_transform1.png'> ",
+"answers":{
+            "a":"90<sup>o</sup>¸ clockwise Rotation",
+            "b":"180<sup>o</sup>¸ clockwise Rotation",
+            "c":"90<sup>o</sup>¸ counter-clockwise Rotation",
+            "d":"270<sup>o</sup>¸ counter-clockwise Rotation"
+          },
+"correctAnswer":"a"},
+
+{"question":"2. If the following operations are applied in order, then what is the composite matrix ? Translation T1 followed by Translation T2, followed Rotation R1, Scale S1, Scale S2 and Rotation R2",
+"answers":{
+            "a":"T<sub>1</sub>T<sub>2</sub>R<sub>1</sub>S<sub>1</sub>S<sub>2</sub>R<sub>2</sub>",
+            "b":"T<sub>1</sub>R<sub>1</sub>S<sub>1</sub>R<sub>2</sub>",
+            "c":"R<sub>2</sub>S<sub>2</sub>S<sub>1</sub>R<sub>1</sub>T<sub>2</sub>T<sub>1</sub>",
+            "d":"R<sub>2</sub>S<sub>2</sub>R<sub>1</sub>T<sub>2</sub>T<sub>1</sub>"
+          },
+"correctAnswer":"c"}, 
+
+{"question":"3. Is S<sub>1</sub>T<sub>1</sub>S<sub>2</sub>T<sub>2</sub> = T<sub>2</sub>S<sub>2</sub>T<sub>1</sub>S<sub>1</sub> ?",
+"answers":{
+            "a":"True",
+            "b":"False",
+            "c":"Valid",
+            "d":"Not Valid"
+          },
+"correctAnswer":"c"}
+
+]

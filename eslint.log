@@ -1,0 +1,32 @@
+
+/home/runner/work/exp-2d-demo-iiith/exp-2d-demo-iiith/experiment/simulation/js/mech_arm.js
+  5:102  warning  'palm_pos' is defined but never used  no-unused-vars
+
+/home/runner/work/exp-2d-demo-iiith/exp-2d-demo-iiith/experiment/simulation/js/shapes.js
+  24:15  warning  'geometry' is assigned a value but never used  no-unused-vars
+
+/home/runner/work/exp-2d-demo-iiith/exp-2d-demo-iiith/experiment/simulation/main.js
+    8:7   warning  'moveButton' is assigned a value but never used             no-unused-vars
+    9:7   warning  'modalbutton1' is assigned a value but never used           no-unused-vars
+   18:5   warning  'initial_pos' is assigned a value but never used            no-unused-vars
+   45:5   warning  'present_theta' is assigned a value but never used          no-unused-vars
+   54:3   warning  'vargrid1' is assigned a value but never used               no-unused-vars
+   55:3   warning  'vargrid2' is assigned a value but never used               no-unused-vars
+   56:3   warning  'vargrid3' is assigned a value but never used               no-unused-vars
+  137:5   warning  'buttons' is assigned a value but never used                no-unused-vars
+  174:5   warning  'pIntersect' is assigned a value but never used             no-unused-vars
+  177:5   warning  'dragObject' is assigned a value but never used             no-unused-vars
+  182:5   warning  'noOfShapes' is assigned a value but never used             no-unused-vars
+  259:1   warning  Unexpected newline between object and [ of property access  no-unexpected-multiline
+  408:10  warning  'createLights' is defined but never used                    no-unused-vars
+  425:10  warning  'createMaterials' is defined but never used                 no-unused-vars
+  431:19  warning  'vertexShader' is not defined                               no-undef
+  432:21  warning  'fragmentShader' is not defined                             no-undef
+  439:10  warning  'createGeometries' is defined but never used                no-unused-vars
+  449:9   warning  'gridHelper' is assigned a value but never used             no-unused-vars
+  450:9   warning  'count' is assigned a value but never used                  no-unused-vars
+  469:7   warning  'tri_geo' is assigned a value but never used                no-unused-vars
+  486:21  warning  'cube' is not defined                                       no-undef
+
+✖ 23 problems (0 errors, 23 warnings)
+
