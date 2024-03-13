@@ -5,18 +5,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.5-b/css/style.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/css/style.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.5-b/css/style.min.css"> -->
     <link rel="stylesheet" href="./css/main.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"> -->
+
 </head>
 
 <body class="page" style="margin:1rem">
 
-    <div class="columns is-centered is-flex">
-        <div class="column has-text-centered">
-            <div class="v-collapsible-instruction-container">
-                <div class="v-collapsible">Instructions</div>
-                <div id="procedure-message" class="v-content">
+    <div class="columns is-centered column">
+        <div class="v-collapsible-instruction-container v-instruction-container">
+            <div id="instruction-title" class="v-collapsible is-size-5">Instructions</div>
+            <div id="procedure-message" class="v-content"
+                style="text-align: left; padding-left: 10%; padding-right: 10%;">
+                <ul style="list-style: disc;">
                     <li style="font-size: 0.9rem;">
                         This experiment explains how points and co-ordinate systems are used together to represent two
                         and three dimensional shapes.
@@ -30,7 +33,7 @@
                     <li style="font-size: 0.9rem;">
                         Drag with the right mouse button to rotate the view and use the mouse wheel to zoom in and out.
                     </li>
-                </div>
+                </ul>
             </div>
         </div>
     </div>
@@ -260,8 +263,7 @@
     <input class="v-slider-full is-centered column exptwoslider is-fullwidth" id="slider" step="1" min="0" max="100"
         value="0" type="range">
 
-
-
+    <script src="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/js/script.js"></script>
     <script type="module" src="main.js"></script>
 </body>
 
