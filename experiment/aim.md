@@ -1,1 +1,1 @@
-This experiment demonstrates the result of different sequences of transformation on 4 different shapes(Cube, Tetrahedron, Octahedron, Dodecahedron).
+This experiment demonstrates the result of different sequences of 3D transformations (scaling, rotation, and translation) on four different shapes (Cube, Tetrahedron, Octahedron, and Dodecahedron) in three-dimensional space.
