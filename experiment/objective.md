@@ -1,5 +1,3 @@
-Objectives for 2D Transformation:
-
 **1. Understanding Transformation Basics:** Explore fundamental concepts of 2D transformations, including translation, rotation, scaling, and their combinations. Participants will grasp how these transformations alter the position, orientation, and size of graphical elements.
 
 **2. Matrix Representation:** Delve into the matrix representation of 2D transformations. Participants will learn to construct transformation matrices for translation, rotation, and composite transformations, understanding their application in computer graphics.

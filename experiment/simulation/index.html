@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hierarchical Transformations: 3D Space Demo</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.5-b/css/style.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/css/style.min.css">
@@ -102,8 +103,7 @@
                         </li>
                         <li>
                             <strong style="color:#1976D2">Apply Scaling:</strong> Click to apply the specified scaling
-                            factors to the current shapes.
-
+                            factors to the current shapes. <span style="color: #666; font-style: italic;">(First set your values using the sliders, then click this button to apply the transformation)</span>
                         </li>
                     </ul>
                 </li>
@@ -140,9 +140,7 @@
                     <ul style="list-style-type: disc; padding-left: 20px;">
                         <li>
                             <strong style="color:#1976D2">Apply Translation:</strong> Click to apply the specified
-                            translation factors to the current
-                            shapes.
-
+                            translation factors to the current shapes. <span style="color: #666; font-style: italic;">(First set your values using the sliders, then click this button to apply the transformation)</span>
                         </li>
                     </ul>
                 </li>
@@ -158,9 +156,12 @@
 
 
                 <li class="instr-font">
-                    <strong style="font-size: 19px;">🎚️Slider Control</strong>: Adjust scaling, rotation, or
-                    translation along the X, Y, and Z axes using the slider.
-
+                    <strong style="font-size: 19px;">🎚️Slider Control</strong>: 
+                    <ul style="list-style-type: disc; padding-left: 20px;">
+                        <li>Use the sliders to set your desired values for scaling, rotation, or translation along the X, Y, and Z axes.</li>
+                        <li>After setting the values with the sliders, click the corresponding "Apply" button to apply the transformation.</li>
+                        <li>You can adjust the values multiple times using the sliders before applying the transformation.</li>
+                    </ul>
                 </li>
 
                 <li class="instr-font">
@@ -366,7 +367,7 @@
                     <label for="scale-z">z</label>
                     <input type="number" id="scale-z" name="scale-z" step=".01" value="2"
                         class="input is-responsive is-small" style="width:25%">
-                    <button type="submit" id="apply-scaling-btn" class="v-button is-responsive is-small">Apply
+                    <button type="submit" id="apply-scaling-btn" class="v-button is-responsive is-small" title="First set your values using the sliders, then click to apply the scaling">Apply
                         Scaling</button>
                 </form>
 
@@ -382,7 +383,7 @@
                     <label for="trans-z">z</label>
                     <input type="number" id="trans-z" name="trans-z" step=".01" value="0"
                         class="input is-responsive is-small" style="width:25%">
-                    <button type="submit" id="apply-translation-btn" class="v-button is-responsive is-small">Apply
+                    <button type="submit" id="apply-translation-btn" class="v-button is-responsive is-small" title="First set your values using the sliders, then click to apply the translation">Apply
                         Translation</button>
                 </form>
 
