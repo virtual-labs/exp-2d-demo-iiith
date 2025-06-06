@@ -9,6 +9,21 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.5-b/css/style.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/css/style.min.css">
     <link rel="stylesheet" href="./css/main.css">
+    <style>
+        /* Add these styles */
+        .rotation-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .rotation-controls select,
+        .rotation-controls button {
+            height: 30px;
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body class="page" style="margin:1rem">
@@ -252,18 +267,17 @@
                                 <select name="" id="shape-edit-dropdown" value="dropdown">
                                     <option value="Cube">Cube</option>
                                     <option value="Tetrahedron">Tetrahedron</option>
-                                    <option value="Octahedron">Octahedron</option>
-                                    <option value="Dodecahedron">Dodecahedron</option>
+                                    <option value="Octahedron">Octahedron</option>                                    
                                 </select>
                             </div>
 
                             <div style="display: block; margin: auto">
                                 <input class="input coord-dim" id="x" type="number" placeholder="X" step=".01"
-                                    value="0">
+                                    value="0" min="-10" max="10" onchange="this.value = parseFloat(this.value)">
                                 <input class="input coord-dim" id="y" type="number" placeholder="Y" step=".01"
-                                    value="0">
+                                    value="0" min="-10" max="10" onchange="this.value = parseFloat(this.value)">
                                 <input class="input coord-dim" id="z" type="number" placeholder="Z" step=".01"
-                                    value="0">
+                                    value="0" min="-10" max="10" onchange="this.value = parseFloat(this.value)">
                             </div>
                             <div class="control">
                                 <button class="v-button edit-button" id="modalBox_addsubmit"
@@ -282,8 +296,7 @@
                                 <select name="" id="shape-add-dropdown" value="dropdown">
                                     <option value="Cube">Cube</option>
                                     <option value="Tetrahedron">Tetrahedron</option>
-                                    <option value="Octahedron">Octahedron</option>
-                                    <option value="Dodecahedron">Dodecahedron</option>
+                                    <option value="Octahedron">Octahedron</option>                                    
                                 </select>
                             </div>
 
@@ -345,11 +358,10 @@
 
         <div class="column is-7-desktop is-10-tablet is-10-mobile exp">
             <div class="v-canvas-container" id="canvas-main">
-
+                <!-- Canvas will be created by Three.js -->
             </div>
             <div class="slider-container"></div>
-            <input class="v-slider-full is-centered column exptwoslider centered-slider" id="slider" value="0" step="1"
-                type="range">
+            <input class="v-slider-full is-centered column exptwoslider centered-slider" id="slider" value="0" step="1" type="range">
         </div>
         </div>
 
@@ -389,22 +401,19 @@
 
                 <!-- Rotation Controls -->
                 <div class="v-datalist-title" id="top-border">Rotation Controls</div>
-                <form>
-                    <label for="quantity">Theta</label>
-                    <input style="width: 25%;" type="number" id="theta" name="theta" step="0.01" value="180"
-                        class="input is-responsive is-small">
-                </form>
-                <div style="margin: 1rem;">
-                    <div class="select">
-                        <select name="" id="axis-change-dropdown" value="dropdown">
+                <form id="rotation-form">
+                    <label for="theta">Theta (θ)</label>
+                    <input type="number" id="theta" name="theta" step="0.01" value="45" class="input is-responsive is-small" style="width:25%">
+                    
+                    <div class="control" style="display: flex; justify-content: center; align-items: center; margin: 10px 0;">
+                        <select id="axis-change-dropdown" class="select is-small">
                             <option value="0">X</option>
                             <option value="1">Y</option>
                             <option value="2">Z</option>
                         </select>
+                        <button type="submit" id="set-rotation-axis" class="v-button is-responsive is-small" style="margin-left: 10px;">Change Axis</button>
                     </div>
-                    <input class="v-button is-responsive is-small" style="margin: 0.5rem;" id="set-rotation-axis"
-                        type="submit" value="Change Axis">
-                </div>
+                </form>
 
                 <!-- Reset Button -->
                 <button type="button" id="reset-all-btn" class="v-button is-responsive is-small">Reset All</button>

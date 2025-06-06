@@ -70,4 +70,4 @@ This experiment demonstrates 3D transformations including translation, rotation,
 - Always ensure the slider is at zero before making new transformations
 - The shape must be selected before applying any transformation
 - The transformation matrix helps visualize the mathematical representation of the transformations
-- The right-hand rule is used for rotation directions to maintain consistency
+- The right-hand rule is used for rotation directions to maintain consistency 

@@ -2,6 +2,9 @@
 import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r115/build/three.module.js";
 import { createMaterials } from "./materials.js";
 
+// Create materials once at module level
+const materials = createMaterials();
+
 // function updateShapeList(shapeList) {
 //   const shapeListDiv = document.getElementById("shape-list");
 //   shapeListDiv.innerHTML = ""; // Clear previous list
@@ -95,184 +98,79 @@ export const createCube = function (
   dragY,
   dragZ
 ) {
-  const geometry = new THREE.BoxGeometry(1);
-  const material = createMaterials().cubeShader;
-  const cub = new THREE.Mesh(geometry, material);
-
-  cub.position.x = x;
-  cub.position.y = y;
-  cub.position.z = z;
-  // const geometry = new THREE.BoxGeometry(1, 1, 1);
-  // const material = createMaterials().cubeShader;
-  // const cub = new THREE.Mesh(geometry, material);
-  // cub.geometry.verticesNeedUpdate = true;
-  shapes.push(cub);
-  shapes[shapes.length - 1].position.set(x, y, z);
-  scene.add(shapes[shapes.length - 1]);
-  shapes[shapes.length - 1].name = "Cube";
-
-  // Add to shapeList with cubeCounter
-  shapeList.push({
-    id: `Cube-${shapeCount[0]}`,
-    // name: "Cube",
-    x: parseInt(x, 10), // Convert to integer
-    y: parseInt(y, 10), // Convert to integer
-    z: parseInt(z, 10), // Convert to integer
-  });
-  console.log(typeof x, typeof y, typeof z);
-
-  shapeCount[0]++;
-  // Highlight edges
-  const edgesGeometry = new THREE.EdgesGeometry(geometry);
-  const edgesMaterial = new THREE.LineBasicMaterial({
-    color: 0xffffff,
-    linewidth: 2,
-  });
-  const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-  shapes[shapes.length - 1].add(edges);
-
-  let verticesList = shapes[shapes.length - 1].geometry.vertices;
-  let i = 0;
-  verticesList.forEach((vertex) => {
-    let dotGeometry = new THREE.Geometry();
-    dotGeometry.vertices.push(vertex);
-    let dotMaterial = new THREE.PointsMaterial({
-      color: "white",
-      size: 6,
-      sizeAttenuation: false,
-    });
-    // const geometry = new THREE.SphereGeometry(15, 32, 16);
-    let dot = new THREE.Points(dotGeometry, dotMaterial);
-    point.push(dot);
-    // shapes[shapes.length - 1].add(point[point.length - 1]);
-    if (i === 0) {
-      shapeVertex.push(dot);
-    }
-    i++;
+  // Debug check for input parameters
+  console.log('createCube called with coordinates:', { x, y, z });
+  console.log('Coordinate types:', {
+    x: typeof x,
+    y: typeof y,
+    z: typeof z
   });
 
-  dragX.push(shapes[shapes.length - 1].geometry.vertices[0].x);
-  dragY.push(shapes[shapes.length - 1].geometry.vertices[0].y);
-  dragZ.push(shapes[shapes.length - 1].geometry.vertices[0].z);
-  // updateShapeList(shapeList); // Update the UI
-};
+  // Parse the string values to numbers
+  const xcoord = parseFloat(x);
+  const ycoord = parseFloat(y);
+  const zcoord = parseFloat(z);
 
-export const createDodecahedron = function (
-  x,
-  y,
-  z,
-  shapes,
-  shapeList,
-  shapeCount,
-  scene,
-  point,
-  shapeVertex,
-  dragX,
-  dragY,
-  dragZ
-) {
-  const geometry = new THREE.DodecahedronGeometry(1);
-  const material = createMaterials().cubeShader;
-  const cub = new THREE.Mesh(geometry, material);
-  cub.geometry.verticesNeedUpdate = true;
-  // cub.name = "Dodecahedron";
-  shapes.push(cub);
-  shapes[shapes.length - 1].position.set(x, y, z);
-  shapes[shapes.length - 1].name = "Dodecahedron";
-  const edgesGeometry = new THREE.EdgesGeometry(geometry);
-  const edgesMaterial = new THREE.LineBasicMaterial({
-    color: 0xffffff,
-    linewidth: 2,
-  });
+  console.log('Parsed coordinates:', { x: xcoord, y: ycoord, z: zcoord });
 
-  shapeList.push({
-    id: `Dodecahedron-${shapeCount[1]++}`,
-    // name: "Dodecahedron",
-    x: parseInt(x, 10), // Convert to integer
-    y: parseInt(y, 10), // Convert to integer
-    z: parseInt(z, 10), // Convert to integer
-  });
-  const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-  shapes[shapes.length - 1].add(edges);
-  scene.add(shapes[shapes.length - 1]);
-  for (let i = 0; i < shapes[shapes.length - 1].geometry.vertices.length; i++) {
-    const dotGeometry = new THREE.Geometry();
-    dotGeometry.vertices.push(shapes[shapes.length - 1].geometry.vertices[i]);
-    const dotMaterial = new THREE.PointsMaterial({
-      color: "white",
-      size: 6,
-      sizeAttenuation: false,
-    });
-    const dot = new THREE.Points(dotGeometry, dotMaterial);
-    point.push(dot);
-    // shapes[shapes.length - 1].add(point[point.length - 1]);
-    if (i === 0) {
-      shapeVertex.push(dot);
-    }
+  if (isNaN(xcoord) || isNaN(ycoord) || isNaN(zcoord)) {
+    console.error('Invalid position coordinates:', { x: xcoord, y: ycoord, z: zcoord });
+    return null;
   }
-  dragX.push(shapes[shapes.length - 1].geometry.vertices[0].x);
-  dragY.push(shapes[shapes.length - 1].geometry.vertices[0].y);
-  dragZ.push(shapes[shapes.length - 1].geometry.vertices[0].z);
-  // updateShapeList(shapeList); // Update the UI
-};
 
-export const createOctahedron = function (
-  x,
-  y,
-  z,
-  shapes,
-  shapeList,
-  shapeCount,
-  scene,
-  point,
-  shapeVertex,
-  dragX,
-  dragY,
-  dragZ
-) {
-  const geometry = new THREE.OctahedronGeometry(1);
-  const material = createMaterials().cubeShader;
-  const cub = new THREE.Mesh(geometry, material);
-  cub.geometry.verticesNeedUpdate = true;
-  shapes.push(cub);
-  shapes[shapes.length - 1].position.set(x, y, z);
+  let geometry, material, cub;
 
-  // Add to shapeList with octahedronCounter
-  shapeList.push({
-    id: `Octahedron-${shapeCount[2]++}`,
-    // name: "Octahedron",
-    x: parseInt(x, 10), // Convert to integer
-    y: parseInt(y, 10), // Convert to integer
-    z: parseInt(z, 10), // Convert to integer
-  });
-  const edgesGeometry = new THREE.EdgesGeometry(geometry);
-  const edgesMaterial = new THREE.LineBasicMaterial({
-    color: 0xffffff,
-    linewidth: 2,
-  });
-  const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-  shapes[shapes.length - 1].add(edges);
-  scene.add(shapes[shapes.length - 1]);
-  shapes[shapes.length - 1].name = "Octahedron";
-  for (let i = 0; i < shapes[shapes.length - 1].geometry.vertices.length; i++) {
-    const dotGeometry = new THREE.Geometry();
-    dotGeometry.vertices.push(shapes[shapes.length - 1].geometry.vertices[i]);
-    const dotMaterial = new THREE.PointsMaterial({
-      color: "white",
-      size: 6,
-      sizeAttenuation: false,
-    });
-    const dot = new THREE.Points(dotGeometry, dotMaterial);
-    point.push(dot);
-    // shapes[shapes.length - 1].add(point[point.length - 1]);
-    if (i === 0) {
-      shapeVertex.push(dot);
+  try {
+    console.log('Creating cube geometry...');
+    geometry = new THREE.BoxGeometry(1, 1, 1);
+    if (!geometry) {
+      throw new Error('Failed to create geometry');
     }
+
+    console.log('Getting material...');
+    material = materials.cubeShader;
+    if (!material) {
+      throw new Error('Failed to get material');
+    }
+
+    console.log('Creating mesh...');
+    cub = new THREE.Mesh(geometry, material);
+    if (!cub) {
+      throw new Error('Failed to create mesh');
+    }
+
+    console.log('Setting cube position...');
+    // Set position with parsed values
+    cub.position.set(xcoord, ycoord, zcoord);
+    cub.updateMatrix();
+    
+    cub.name = "Cube";
+    cub.userData.id = `Cube-${shapeCount[0]}`;
+    cub.userData.selected = false;
+    
+    console.log('Adding cube to scene...');
+    scene.add(cub);
+    shapes.push(cub);
+    
+    // Add to shapeList with parsed values
+    const newEntry = {
+      id: cub.userData.id,
+      x: xcoord,
+      y: ycoord,
+      z: zcoord,
+      type: "Cube"
+    };
+    shapeList.push(newEntry);
+    console.log('Added to shapeList:', newEntry);
+    
+    shapeCount[0]++;
+    console.log('Cube created with ID:', cub.userData.id);
+    
+    return cub;
+  } catch (error) {
+    console.error('Error creating cube:', error);
+    return null;
   }
-  dragX.push(shapes[shapes.length - 1].geometry.vertices[0].x);
-  dragY.push(shapes[shapes.length - 1].geometry.vertices[0].y);
-  dragZ.push(shapes[shapes.length - 1].geometry.vertices[0].z);
-  // updateShapeList(shapeList); // Update the UI
 };
 
 export const createTetrahedron = function (
@@ -289,48 +187,173 @@ export const createTetrahedron = function (
   dragY,
   dragZ
 ) {
-  console.log("Creating Tetrahedron at: ", x, y, z); // Add this line to debug
-
-  const geometry = new THREE.TetrahedronGeometry(1);
-  const material = createMaterials().cubeShader;
-  const cub = new THREE.Mesh(geometry, material);
-  cub.geometry.verticesNeedUpdate = true;
-  shapes.push(cub);
-  shapes[shapes.length - 1].position.set(x, y, z);
-
-  shapeList.push({
-    id: `Tetrahedron-${shapeCount[3]++}`,
-    // name: "Tetrahedron",
-    x: parseInt(x, 10), // Convert to integer
-    y: parseInt(y, 10), // Convert to integer
-    z: parseInt(z, 10), // Convert to integer
+  // Debug check for input parameters
+  console.log('createTetrahedron called with coordinates:', { x, y, z });
+  console.log('Coordinate types:', {
+    x: typeof x,
+    y: typeof y,
+    z: typeof z
   });
-  const edgesGeometry = new THREE.EdgesGeometry(geometry);
-  const edgesMaterial = new THREE.LineBasicMaterial({
-    color: 0xffffff,
-    linewidth: 2,
-  });
-  const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-  shapes[shapes.length - 1].add(edges);
-  scene.add(shapes[shapes.length - 1]);
-  shapes[shapes.length - 1].name = "Tetrahedron";
-  for (let i = 0; i < shapes[shapes.length - 1].geometry.vertices.length; i++) {
-    const dotGeometry = new THREE.Geometry();
-    dotGeometry.vertices.push(shapes[shapes.length - 1].geometry.vertices[i]);
-    const dotMaterial = new THREE.PointsMaterial({
-      color: "white",
-      size: 6,
-      sizeAttenuation: false,
-    });
-    const dot = new THREE.Points(dotGeometry, dotMaterial);
-    point.push(dot);
-    // shapes[shapes.length - 1].add(point[point.length - 1]);
-    if (i === 0) {
-      shapeVertex.push(dot);
-    }
+
+  // Parse the string values to numbers
+  const xcoord = parseFloat(x);
+  const ycoord = parseFloat(y);
+  const zcoord = parseFloat(z);
+
+  console.log('Parsed coordinates:', { x: xcoord, y: ycoord, z: zcoord });
+
+  if (isNaN(xcoord) || isNaN(ycoord) || isNaN(zcoord)) {
+    console.error('Invalid position coordinates:', { x: xcoord, y: ycoord, z: zcoord });
+    return null;
   }
-  dragX.push(shapes[shapes.length - 1].geometry.vertices[0].x);
-  dragY.push(shapes[shapes.length - 1].geometry.vertices[0].y);
-  dragZ.push(shapes[shapes.length - 1].geometry.vertices[0].z);
-  // updateShapeList(shapeList); // Update the UI
+
+  let geometry, material, tetra;
+
+  try {
+    console.log('Creating tetrahedron geometry...');
+    geometry = new THREE.TetrahedronGeometry(1);
+    if (!geometry) {
+      throw new Error('Failed to create geometry');
+    }
+
+    console.log('Getting material...');
+    material = materials.tetrahedronShader;
+    if (!material) {
+      throw new Error('Failed to get material');
+    }
+
+    console.log('Creating mesh...');
+    tetra = new THREE.Mesh(geometry, material);
+    if (!tetra) {
+      throw new Error('Failed to create mesh');
+    }
+
+    console.log('Setting tetrahedron position...');
+    // Set position with parsed values
+    tetra.position.set(xcoord, ycoord, zcoord);
+    tetra.updateMatrix();
+    
+    tetra.name = "Tetrahedron";
+    tetra.userData.id = `Tetrahedron-${shapeCount[1]}`;
+    tetra.userData.selected = false;
+    
+    console.log('Adding tetrahedron to scene...');
+    scene.add(tetra);
+    shapes.push(tetra);
+    
+    // Add to shapeList with parsed values
+    const newEntry = {
+      id: tetra.userData.id,
+      x: xcoord,
+      y: ycoord,
+      z: zcoord,
+      type: "Tetrahedron"
+    };
+    shapeList.push(newEntry);
+    console.log('Added to shapeList:', newEntry);
+    
+    shapeCount[1]++;
+    console.log('Tetrahedron created with ID:', tetra.userData.id);
+    
+    return tetra;
+  } catch (error) {
+    console.error('Error creating tetrahedron:', error);
+    return null;
+  }
+};
+
+export const createOctahedron = function (
+  x,
+  y,
+  z,
+  shapes,
+  shapeList,
+  shapeCount,
+  scene,
+  point,
+  shapeVertex,
+  dragX,
+  dragY,
+  dragZ
+) {
+  // Debug check for input parameters
+  console.log('createOctahedron called with coordinates:', { x, y, z });
+  console.log('Coordinate types:', {
+    x: typeof x,
+    y: typeof y,
+    z: typeof z
+  });
+
+  // Parse the string values to numbers
+  const xcoord = parseFloat(x);
+  const ycoord = parseFloat(y);
+  const zcoord = parseFloat(z);
+
+  console.log('Parsed coordinates:', { x: xcoord, y: ycoord, z: zcoord });
+
+  if (isNaN(xcoord) || isNaN(ycoord) || isNaN(zcoord)) {
+    console.error('Invalid position coordinates:', { x: xcoord, y: ycoord, z: zcoord });
+    return null;
+  }
+
+  let geometry, material, octa;
+
+  try {
+    console.log('Creating octahedron geometry...');
+    geometry = new THREE.OctahedronGeometry(1);
+    if (!geometry) {
+      throw new Error('Failed to create geometry');
+    }
+
+    console.log('Getting material...');
+    material = materials.octahedronShader;
+    if (!material) {
+      throw new Error('Failed to get material');
+    }
+
+    console.log('Creating mesh...');
+    octa = new THREE.Mesh(geometry, material);
+    if (!octa) {
+      throw new Error('Failed to create mesh');
+    }
+
+    console.log('Setting octahedron position...');
+    // Set position with parsed values
+    octa.position.set(xcoord, ycoord, zcoord);
+    octa.updateMatrix();
+    
+    console.log('Octahedron position set to:', octa.position);
+    console.log('Position components:', {
+      x: octa.position.x,
+      y: octa.position.y,
+      z: octa.position.z
+    });
+    
+    octa.name = "Octahedron";
+    octa.userData.id = `Octahedron-${shapeCount[2]}`;
+    octa.userData.selected = false;
+    
+    console.log('Adding octahedron to scene...');
+    scene.add(octa);
+    shapes.push(octa);
+    
+    // Add to shapeList with parsed values
+    const newEntry = {
+      id: octa.userData.id,
+      x: xcoord,
+      y: ycoord,
+      z: zcoord,
+      type: "Octahedron"
+    };
+    shapeList.push(newEntry);
+    console.log('Added to shapeList:', newEntry);
+    
+    shapeCount[2]++;
+    console.log('Octahedron created with ID:', octa.userData.id);
+    
+    return octa;
+  } catch (error) {
+    console.error('Error creating octahedron:', error);
+    return null;
+  }
 };

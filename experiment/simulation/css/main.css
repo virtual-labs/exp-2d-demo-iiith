@@ -60,12 +60,19 @@
 /* Remove large negative margin */
 .slider-container {
     position: relative;
-     display: flex; /*Flex layout for the container*/ 
+    display: flex; /*Flex layout for the container*/ 
     margin-top: -11vh;
+    width: 100%;
+    justify-content: center;
 }
 
 .centered-slider {
     width: 100%; /* Ensure slider takes up full width */
+}
+
+.v-slider-full {
+    width: 80%;
+    margin: auto;
 }
 
 .axis-change{
@@ -76,37 +83,73 @@
 
 
 @media screen and (max-width: 800px) {
-     .v-canvas-container {
+    .v-canvas-container {
         width: 100%;
-        height: 650px; /* Set a minimum height for mobile */
-        /* min-height: 100px; */
+        height: 650px;
     }
     .slider-container {
         margin-top: -60px;
+        margin-bottom: 80px; /* Add bottom margin to prevent overlap with bug feature logo */
     }
-    .axis-change{
+    .centered-slider {
+        width: 90%;
+    }
+    .axis-change {
         display: flex;
         flex-direction: column;
     }
+    .workspace {
+        flex-direction: column !important;
+    }
     .left {
         order: 1;
-        
+        width: 100% !important;
+        margin-bottom: 20px;
     }
-
     .right {
         order: 2;
+        width: 100% !important;
+        margin-bottom: 20px;
     }
-
     .exp {
         order: 3;
+        width: 100% !important;
     }
-    #apply-scaling-btn {
-        padding: 8px 16px; /* Adjust padding for smaller screens */
-        font-size: 5px; /* Adjust font size for smaller screens */
+    #left.apparatus {
+        width: 100% !important;
+        height: auto !important;
     }
-    #apply-tranaltion-btn {
-        padding: 8px 16px; /* Adjust padding for smaller screens */
-        font-size: 5px; /* Adjust font size for smaller screens */
+    #observations.right {
+        width: 100% !important;
+        height: auto !important;
+    }
+    .modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 15px !important;
+        box-sizing: border-box !important;
+        background-color: white;
+    }
+    #add-modal, #edit-modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: center;
+    }
+    .modal.is-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: center;
+    }
+    .modal.is-responsive .modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 15px !important;
     }
 }
 
@@ -162,8 +205,6 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    /* background-color: rgb(0, 0, 0); */
-    /* background-color: rgba(0, 0, 0, 0.4); */
 }
 
 #disp-heading { 
@@ -192,12 +233,7 @@
     cursor: pointer;
 }
 
-#add-modal {
-    width: 50%;
-    margin: auto;
-}
-
-#edit-modal {
+#add-modal, #edit-modal {
     width: 50%;
     margin: auto;
 }
@@ -235,10 +271,23 @@
 }
 
 .v-button {
-    background-color: #04AA6D;
-    border-radius: 0.5rem;
-    font-size: medium;
-    margin: 1rem;
+    background: linear-gradient(to right, #2196F3, #1976D2);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition-duration: 0.4s;
+    margin: 5px;
+}
+
+.v-button:hover {
+    background: linear-gradient(to right, #1976D2, #0D47A1);
+    color: white;
 }
 
 .instr-font {
@@ -572,4 +621,24 @@
 .v-datalist-container {
     scrollbar-width: thin;
     scrollbar-color: #888 #f1f1f1;
+}
+
+/* Control container styles */
+.control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    gap: 10px;
+}
+
+.control select {
+    height: 35px;
+    padding: 0 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 80px;
 }

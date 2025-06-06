@@ -4,7 +4,6 @@ import { OrbitControls } from "https://threejsfundamentals.org/threejs/resources
 import { MOUSE } from "https://unpkg.com/three@0.128.0/build/three.module.js";
 import {
   createCube,
-  createDodecahedron,
   createOctahedron,
   createTetrahedron,
 } from "./js/shapes.js";
@@ -22,8 +21,9 @@ let xzGrid = document.getElementById("xz-grid-cb");
 let container = document.getElementById("canvas-main");
 
 let modalAdd = document.getElementById("add-modal");
-let modalEdit = document.getElementById("edit-modal");
-let spanEditModal = document.getElementsByClassName("close")[0];
+const editModal = document.getElementById("edit-modal");
+const spanEditModal = document.getElementsByClassName("close")[0];
+const modalEditButton = document.querySelector(".edit-button");
 var slider = document.getElementById("slider");
 slider.addEventListener("input", movePoint);
 document.getElementById("slider").max = 1000;
@@ -43,6 +43,7 @@ var transY = parseFloat(document.getElementById("trans-y").value);
 var transZ = parseFloat(document.getElementById("trans-z").value);
 
 let old_scale = [1, 1, 1];
+let old_position = [0, 0, 0];
 
 let frames = 1000;
 let scene,
@@ -171,12 +172,12 @@ function updateShapeList(shapeList) {
     li.innerHTML = `
       <div class="shape-info">
         <span class="shape-id">${shape.id}</span>
-        <span class="coordinates">(${shape.x}, ${shape.y}, ${shape.z})</span>
+        <span class="coordinates">(${shape.x.toFixed(2)}, ${shape.y.toFixed(2)}, ${shape.z.toFixed(2)})</span>
       </div>
       <div class="button-group">
         <button class="select-btn" 
                 data-name="${shape.id}" 
-                data-coordinates="${shape.x},${shape.y},${shape.z}">
+                data-coordinates="${shape.x.toFixed(2)},${shape.y.toFixed(2)},${shape.z.toFixed(2)}">
           Select
         </button>
         
@@ -201,87 +202,86 @@ function updateShapeList(shapeList) {
   });
 }
 
+// Shape selection handler
 function handleSelect(event) {
-  const shapeName = event.target.getAttribute("data-name");
-  const shapeCoordinates = event.target.getAttribute("data-coordinates");
+  console.log('Select button clicked:', event.target.dataset.name);
+  const shapeId = event.target.dataset.name;
+  
+  // Find shape by ID in both shapes array and shapeList
+  const selectedShape = shapes.find(shape => shape.userData.id === shapeId);
+  const selectedShapeInfo = shapeList.find(shape => shape.id === shapeId);
+  
+  console.log('Found shape:', selectedShape);
+  console.log('Found shape info:', selectedShapeInfo);
+  
+  if (selectedShape) {
+    console.log('Deselecting all shapes');
+    // Deselect all shapes
+    shapes.forEach(shape => {
+      shape.userData.selected = false;
+      if (shape.userData.outline) {
+        shape.remove(shape.userData.outline);
+        shape.userData.outline = null;
+      }
+    });
 
-  // Validate the selected shape data
-  if (!shapeName || !shapeCoordinates) {
-    console.error("Missing shape name or coordinates");
-    return;
-  }
-
-  console.log(`Shape Selected: ${shapeName}`);
-  console.log(`Coordinates: ${shapeCoordinates}`);
-
-  // Safely parse coordinates
-  let coordsArray;
-  try {
-    coordsArray = shapeCoordinates
-      .replace(/[()]/g, "")
-      .split(",")
-      .map((coord) => parseFloat(coord.trim()));
-
-    if (coordsArray.length !== 3 || coordsArray.some(isNaN)) {
-      throw new Error("Invalid coordinate format");
+    console.log('Selecting shape:', shapeId);
+    // Select the clicked shape
+    selectedShape.userData.selected = true;
+    
+    // Create outline based on shape type
+    let outlineGeometry;
+    switch(selectedShape.name) {
+      case 'Cube':
+        outlineGeometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+        break;
+      case 'Tetrahedron':
+        outlineGeometry = new THREE.TetrahedronGeometry(1.2);
+        break;
+      case 'Octahedron':
+        outlineGeometry = new THREE.OctahedronGeometry(1.2);
+        break;
+      default:
+        outlineGeometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
     }
-  } catch (error) {
-    console.error("Error parsing coordinates:", error);
-    return;
+    
+    const outlineMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffff00,
+      side: THREE.BackSide,
+      transparent: true,
+      opacity: 0.5
+    });
+    
+    const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+    selectedShape.add(outline);
+    selectedShape.userData.outline = outline;
+
+    // Update edit modal with shape's current position
+    const xInput = document.getElementById('x');
+    const yInput = document.getElementById('y');
+    const zInput = document.getElementById('z');
+    
+    // Set the input values with explicit string conversion
+    xInput.value = selectedShape.position.x.toString();
+    yInput.value = selectedShape.position.y.toString();
+    zInput.value = selectedShape.position.z.toString();
+    
+    console.log('Updated modal values:', {
+      x: xInput.value,
+      y: yInput.value,
+      z: zInput.value
+    });
+    
+    document.getElementById('shape-edit-dropdown').value = selectedShape.name;
+
+    // Update button state
+    const selectBtn = event.target;
+    selectBtn.classList.add('shape-selected');
+    selectBtn.textContent = 'Selected';
+    console.log('Shape selection complete');
+  } else {
+    console.warn('Shape not found for ID:', shapeId);
   }
-
-  const shapePosition = new THREE.Vector3(
-    coordsArray[0],
-    coordsArray[1],
-    coordsArray[2]
-  );
-
-  // Find the shape in the shapeList based on its coordinates
-  const shape = shapes.find(
-    (s) =>
-      s.position.x == coordsArray[0] &&
-      s.position.y == coordsArray[1] &&
-      s.position.z == coordsArray[2]
-  );
-
-  if (!shape) {
-    console.log("Shape not found in shapes.");
-    return;
-  }
-
-  // Handle selection and deselection of shapes
-  const existingLine = scene.getObjectByName("selection-line");
-
-  if (existingLine && existingLine.position.equals(shapePosition)) {
-    scene.remove(existingLine);
-    console.log("Deselected the shape.");
-    return;
-  }
-
-  // Remove existing selection line
-  if (existingLine) {
-    scene.remove(existingLine);
-  }
-
-  // Create a new selection line
-  const geometry = new THREE.SphereGeometry(1, 32, 16);
-  const edges = new THREE.EdgesGeometry(geometry);
-  const line = new THREE.LineSegments(
-    edges,
-    new THREE.LineBasicMaterial({ color: 0xffffff })
-  );
-  line.position.set(shapePosition.x, shapePosition.y, shapePosition.z);
-  line.name = "selection-line"; // Add a name for easy identification
-  scene.add(line);
-  console.log("Selection line created at shape's position.");
-
-  // Get delete and edit buttons
-  const deleteButton = document.getElementById("delete-shape-btn");
-  const editButton = document.getElementById("edit-shape-btn");
-
-  // Clear previous event listeners before setting them again
-  deleteButton.onclick = () => handleDelete(shape, line, coordsArray);
-  editButton.onclick = () => handleEdit(shape, line, coordsArray);
 }
 
 function handleDelete(shape, line, coordsArray) {
@@ -309,99 +309,35 @@ function handleDelete(shape, line, coordsArray) {
 }
 
 function handleEdit(shape, line, coordsArray) {
-  const editModal = document.getElementById("edit-modal");
+  console.log('Edit started');
+  
+  // Clear any existing event listeners
+  modalEditButton.removeEventListener("click", handleEditConfirmation);
+
+  // Show the modal
   editModal.style.display = "block";
 
   // Fill the modal fields with the current values of the shape
   const shapeTypeSelect = document.querySelector("select");
-  document.getElementById("x").value = shape.position.x;
-  document.getElementById("y").value = shape.position.y;
-  document.getElementById("z").value = shape.position.z;
-  shapeTypeSelect.value = shape.name; // Assuming shape.name holds the current shape type
+  const xInput = document.getElementById("x");
+  const yInput = document.getElementById("y");
+  const zInput = document.getElementById("z");
 
-  // Use a single event listener to handle edit confirmation
-  const modalEditButton = document.querySelector(".edit-button");
+  // Set the input values with explicit string conversion
+  xInput.value = shape.position.x.toString();
+  yInput.value = shape.position.y.toString();
+  zInput.value = shape.position.z.toString();
+  shapeTypeSelect.value = shape.name;
 
-  // Remove any previous listener to avoid duplication
-  modalEditButton.removeEventListener("click", handleEditConfirmation);
+  console.log('Initial modal values:', {
+    x: xInput.value,
+    y: yInput.value,
+    z: zInput.value
+  });
 
   // Add the event listener
   modalEditButton.addEventListener("click", handleEditConfirmation);
-
-  function handleEditConfirmation() {
-    // Get new coordinates from the modal inputs
-    const xcoord = parseFloat(document.getElementById("x").value);
-    const ycoord = parseFloat(document.getElementById("y").value);
-    const zcoord = parseFloat(document.getElementById("z").value);
-    const shapeType = shapeTypeSelect.value;
-
-    // Validate the new coordinates
-    if (isNaN(xcoord) || isNaN(ycoord) || isNaN(zcoord)) {
-      console.error("Invalid coordinate input");
-      return;
-    }
-
-    // Remove the current shape and selection line from the scene
-    scene.remove(line); // Remove selection line
-    scene.remove(shape); // Remove the shape from the scene
-
-    // Remove the current shape from shapeList
-    shapeList = shapeList.filter(
-      (s) =>
-        !(
-          s.x == coordsArray[0] &&
-          s.y == coordsArray[1] &&
-          s.z == coordsArray[2]
-        )
-    );
-
-    shapes = shapes.filter(
-      (s) =>
-        !(
-          s.position.x == coordsArray[0] &&
-          s.position.y == coordsArray[1] &&
-          s.position.z == coordsArray[2]
-        )
-    );
-
-    // Create a new shape based on the selected type
-    const createShape = {
-      Cube: createCube,
-      Tetrahedron: createTetrahedron,
-      Octahedron: createOctahedron,
-      Dodecahedron: createDodecahedron,
-    }[shapeType];
-
-    if (createShape) {
-      createShape(
-        xcoord,
-        ycoord,
-        zcoord,
-        shapes,
-        shapeList,
-        shapeCount,
-        scene,
-        point,
-        shapeVertex,
-        dragX,
-        dragY,
-        dragz
-      );
-    } else {
-      console.error("Invalid shape type");
-      return;
-    }
-
-    // Update shapeList and the UI
-    noOfShapes++;
-    updateShapeList(shapeList);
-
-    // Close the modal after saving the shape
-    editModal.style.display = "none";
-
-    // After edit confirmation, remove the event listener to avoid duplication on next clicks
-    modalEditButton.removeEventListener("click", handleEditConfirmation);
-  }
+  console.log('Edit setup completed');
 }
 
 let buttons = document.getElementsByTagName("button");
@@ -420,18 +356,35 @@ document.getElementById("add-shape-btn").onclick = function () {
 
 // Function to handle shape addition
 function handleShapeAddition() {
-  let xcoord = document.getElementById("x1").value;
-  let ycoord = document.getElementById("y1").value;
-  let zcoord = document.getElementById("z1").value;
-  noOfShapes++;
+  // Parse coordinates as numbers and validate
+  const xcoord = parseFloat(document.getElementById("x1").value);
+  const ycoord = parseFloat(document.getElementById("y1").value);
+  const zcoord = parseFloat(document.getElementById("z1").value);
+  
+  // Validate coordinates
+  if (isNaN(xcoord) || isNaN(ycoord) || isNaN(zcoord)) {
+    console.error("Invalid coordinate input:", { x: xcoord, y: ycoord, z: zcoord });
+    alert('Please enter valid numeric coordinates');
+    return;
+  }
 
+  noOfShapes++;
   const shapeType = document.getElementById("shape-add-dropdown").value;
+
+  // Create shape with formatted coordinates
+  const newShape = {
+    id: `${shapeType}-${shapeCount[shapeType === 'Cube' ? 0 : shapeType === 'Tetrahedron' ? 1 : 2]}`,
+    x: parseFloat(xcoord.toFixed(2)),
+    y: parseFloat(ycoord.toFixed(2)),
+    z: parseFloat(zcoord.toFixed(2)),
+    type: shapeType
+  };
 
   if (shapeType === "Cube") {
     createCube(
-      xcoord,
-      ycoord,
-      zcoord,
+      newShape.x,
+      newShape.y,
+      newShape.z,
       shapes,
       shapeList,
       shapeCount,
@@ -444,9 +397,9 @@ function handleShapeAddition() {
     );
   } else if (shapeType === "Tetrahedron") {
     createTetrahedron(
-      xcoord,
-      ycoord,
-      zcoord,
+      newShape.x,
+      newShape.y,
+      newShape.z,
       shapes,
       shapeList,
       shapeCount,
@@ -459,24 +412,9 @@ function handleShapeAddition() {
     );
   } else if (shapeType === "Octahedron") {
     createOctahedron(
-      xcoord,
-      ycoord,
-      zcoord,
-      shapes,
-      shapeList,
-      shapeCount,
-      scene,
-      point,
-      shapeVertex,
-      dragX,
-      dragY,
-      dragz
-    );
-  } else if (shapeType === "Dodecahedron") {
-    createDodecahedron(
-      xcoord,
-      ycoord,
-      zcoord,
+      newShape.x,
+      newShape.y,
+      newShape.z,
       shapes,
       shapeList,
       shapeCount,
@@ -545,179 +483,317 @@ let noOfShapes = 0;
 let xcomp = 1,
   ycomp = 0,
   zcomp = 0;
-let rot_axis = new THREE.Vector3(xcomp, ycomp, zcomp);
-let prev_x = 0;
-let prev_y = 0;
-let prev_z = 0;
+let rot_axis = new THREE.Vector3(1, 0, 0); // Default to X-axis
 let present_theta = 0;
+let total_angle = 45; // Default angle
 const set_rotation_axis = document.getElementById("set-rotation-axis");
 rot_axis.normalize();
 set_rotation_axis.addEventListener("click", () => {
-  if (document.getElementById("axis-change-dropdown").value == 0) {
-    xcomp = 1;
-    ycomp = 0;
-    zcomp = 0;
-  }
-  if (document.getElementById("axis-change-dropdown").value == 1) {
-    ycomp = 1;
-    xcomp = 0;
-    zcomp = 0;
-  }
-  if (document.getElementById("axis-change-dropdown").value == 2) {
-    zcomp = 1;
-    xcomp = 0;
-    ycomp = 0;
+  console.log('Change Axis button clicked');
+  
+  // Check if any shape is selected
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (!selectedShape) {
+    console.warn('No shape selected');
+    alert("Please select a shape first");
+    return;
   }
 
-  rot_axis = new THREE.Vector3(
-    parseFloat(xcomp),
-    parseFloat(ycomp),
-    parseFloat(zcomp)
-  ).normalize();
+  // Get rotation values from form
+  const theta = parseFloat(document.getElementById("theta").value);
+  const axis = document.getElementById("axis-change-dropdown").value;
+  
+  console.log('Rotation parameters:', {
+    theta: theta,
+    axis: axis
+  });
+  
+  // Set rotation axis based on selection
+  if (axis === "0") { // X-axis
+    rot_axis.set(1, 0, 0);
+  } else if (axis === "1") { // Y-axis
+    rot_axis.set(0, 1, 0);
+  } else if (axis === "2") { // Z-axis
+    rot_axis.set(0, 0, 1);
+  }
+  rot_axis.normalize();
+  
+  console.log('Rotation axis:', rot_axis);
+  
+  // Set current transformation type
+  currentTransformationType = 'rotation';
+  
+  // Reset slider to start position
+  if (slider) {
+    slider.value = 0;
+  }
+  
+  // Update the matrix display with initial state
+  updateMatrixDisplay();
 });
 
-// Apply Scaling function
-function applyScaling(event) {
-  event.preventDefault(); // Prevent the default form submission
-  max_x_scale = parseFloat(document.getElementById("scale-x").value);
-  max_y_scale = parseFloat(document.getElementById("scale-y").value);
-  max_z_scale = parseFloat(document.getElementById("scale-z").value);
-
-  // Your scaling logic here
-  console.log("Scaling applied:", max_x_scale, max_y_scale, max_z_scale);
-
-  // Optionally, you can remove the event listener after it's triggered once
-  // event.target.removeEventListener("submit", applyScaling);
-}
+// Add transformation type tracking
+let currentTransformationType = null; // 'translation', 'rotation', or 'scaling'
 
 // Apply Translation function
 function applyTranslation(event) {
-  event.preventDefault(); // Prevent the default form submission
+  event.preventDefault();
+  console.log('Applying translation');
+  
+  // Check if any shape is selected
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (!selectedShape) {
+    console.warn('No shape selected');
+    alert("Please select a shape first");
+    return;
+  }
+  
+  // Store original position
+  const originalPosition = selectedShape.position.clone();
+  console.log('Original position:', originalPosition);
+  
+  // Get translation values from form
   transX = parseFloat(document.getElementById("trans-x").value);
   transY = parseFloat(document.getElementById("trans-y").value);
   transZ = parseFloat(document.getElementById("trans-z").value);
 
-  // Your translation logic here
-  console.log("Translation applied:", transX, transY, transZ);
-
-  // Optionally, you can remove the event listener after it's triggered once
-  // event.target.removeEventListener("submit", applyTranslation);
+  console.log('Translation values:', {
+    x: transX,
+    y: transY,
+    z: transZ
+  });
+  
+  // Store initial position for slider animation
+  old_position = [originalPosition.x, originalPosition.y, originalPosition.z];
+  
+  // Set current transformation type
+  currentTransformationType = 'translation';
+  
+  // Reset slider to start position
+  if (slider) {
+    slider.value = 0;
+  }
+  
+  // Update the matrix display with initial state
+  updateMatrixDisplay();
 }
 
-// Add event listeners for Apply Scaling and Apply Translation buttons
-document
-  .getElementById("scaling-form")
-  .addEventListener("submit", applyScaling);
-document
-  .getElementById("translation-form")
-  .addEventListener("submit", applyTranslation);
+// Apply Scaling function
+function applyScaling(event) {
+  event.preventDefault();
+  console.log('Applying scaling');
+  
+  // Check if any shape is selected
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (!selectedShape) {
+    console.warn('No shape selected');
+    alert("Please select a shape first");
+    return;
+  }
+  
+  // Store original position and scale
+  const originalPosition = selectedShape.position.clone();
+  const originalScale = selectedShape.scale.clone();
+  console.log('Original position:', originalPosition);
+  console.log('Original scale:', originalScale);
+  
+  // Get scaling values from form
+  max_x_scale = parseFloat(document.getElementById("scale-x").value);
+  max_y_scale = parseFloat(document.getElementById("scale-y").value);
+  max_z_scale = parseFloat(document.getElementById("scale-z").value);
+
+  console.log('Target scaling values:', {
+    x: max_x_scale,
+    y: max_y_scale,
+    z: max_z_scale
+  });
+  
+  // Store initial scale for slider animation
+  old_scale = [originalScale.x, originalScale.y, originalScale.z];
+  
+  // Set current transformation type
+  currentTransformationType = 'scaling';
+  
+  // Reset slider to start position
+  if (slider) {
+    slider.value = 0;
+  }
+  
+  // Update the matrix display with initial state
+  updateMatrixDisplay();
+}
+
+// Apply Rotation function
+function applyRotation(event) {
+  event.preventDefault();
+  console.log('Applying rotation');
+  
+  // Check if any shape is selected
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (!selectedShape) {
+    console.warn('No shape selected');
+    alert("Please select a shape first");
+    return;
+  }
+  
+  console.log('Selected shape for rotation:', selectedShape);
+  console.log('Shape position:', selectedShape.position);
+  console.log('Shape geometry:', selectedShape.geometry);
+  
+  // Get rotation values from form
+  const theta = parseFloat(document.getElementById("theta").value);
+  const axis = document.getElementById("axis-change-dropdown").value;
+  
+  console.log('Rotation parameters:', {
+    theta: theta,
+    axis: axis
+  });
+  
+  // Set rotation axis based on selection
+  let rot_axis;
+  if (axis === "0") { // X-axis
+    rot_axis = new THREE.Vector3(1, 0, 0);
+  } else if (axis === "1") { // Y-axis
+    rot_axis = new THREE.Vector3(0, 1, 0);
+  } else if (axis === "2") { // Z-axis
+    rot_axis = new THREE.Vector3(0, 0, 1);
+  }
+  rot_axis.normalize();
+  
+  console.log('Rotation axis:', rot_axis);
+  
+  // Store initial rotation for slider animation
+  present_theta = 0;
+  
+  // Set current transformation type
+  currentTransformationType = 'rotation';
+  
+  // Reset slider to start position
+  if (slider) {
+    slider.value = 0;
+  }
+  
+  // Update the matrix display with initial state
+  updateMatrixDisplay();
+}
 
 function movePoint(e) {
-  var target = e.target ? e.target : e.srcElement;
-
-  //Translation
-  // Get target values directly from input
-  let tx = transX;
-  let ty = transY;
-  let tz = transZ;
-
-  // Calculate translation based on slider value
-  let translationScale = target.value / target.max;
-  let curr_x = tx * translationScale - prev_x;
-  let curr_y = ty * translationScale - prev_y;
-  let curr_z = tz * translationScale - prev_z;
-
-  // Create translation matrix
-  prev_x += curr_x;
-  prev_y += curr_y;
-  prev_z += curr_z;
-  let translate_M = new THREE.Matrix4().makeTranslation(curr_x, curr_y, curr_z);
-
-  let rot_angle =
-    (target.value * parseFloat(document.getElementById("theta").value)) /
-      target.max -
-    present_theta;
-
-  present_theta += rot_angle;
-
-  let quat = new THREE.Quaternion();
-  let rot_matrix = new THREE.Matrix4();
-  quat.setFromAxisAngle(rot_axis, (rot_angle * Math.PI) / 180);
-  rot_matrix.makeRotationFromQuaternion(quat);
-
-  let scale = new Array();
-  scale[0] = 1 + (target.value / frames) * (max_x_scale - 1);
-  scale[1] = 1 + (target.value / frames) * (max_y_scale - 1);
-  scale[2] = 1 + (target.value / frames) * (max_z_scale - 1);
-
-  let scale_m = new THREE.Matrix4();
-  scale_m.makeScale(
-    scale[0] / old_scale[0],
-    scale[1] / old_scale[1],
-    scale[2] / old_scale[2]
-  );
-
-  for (let i = 0; i < 3; i++) {
-    old_scale[i] = scale[i];
+  console.log('Slider moved:', e.target.value);
+  const sliderValue = parseFloat(e.target.value) / 1000;
+  console.log('Normalized slider value:', sliderValue);
+  
+  // Check if any shape is selected
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (!selectedShape) {
+    console.warn('No shape selected');
+    alert("Please select a shape first");
+    return;
   }
 
-  trans_matrix.multiply(scale_m);
-  trans_matrix.multiply(rot_matrix);
-  trans_matrix.multiply(translate_M);
+  console.log('Selected shape for transformation:', selectedShape);
+  console.log('Current transformation type:', currentTransformationType);
 
-  shapes.forEach((shape) => {
-    shape.geometry.applyMatrix4(scale_m);
-    shape.geometry.applyMatrix4(rot_matrix);
-    shape.geometry.applyMatrix4(translate_M);
-
-    // Update geometry attributes
-    if (shape.geometry.isBufferGeometry) {
-      shape.geometry.attributes.position.needsUpdate = true;
-      shape.geometry.computeBoundingBox(); // Only if bounding box is needed
-      shape.geometry.computeVertexNormals(); // Only if normals are affected
-    }
-
-    // Update edges
-    shape.traverse((child) => {
-      if (child.isLineSegments) {
-        child.geometry.applyMatrix4(scale_m);
-        child.geometry.applyMatrix4(rot_matrix);
-        child.geometry.applyMatrix4(translate_M);
-        if (child.geometry.isBufferGeometry) {
-          child.geometry.attributes.position.needsUpdate = true;
-        }
+  // Handle different transformation types
+  switch(currentTransformationType) {
+    case 'translation':
+      // Calculate new position based on slider value
+      const newX = old_position[0] + transX * sliderValue;
+      const newY = old_position[1] + transY * sliderValue;
+      const newZ = old_position[2] + transZ * sliderValue;
+      
+      // Create translation matrix
+      const translationMatrix = new THREE.Matrix4();
+      translationMatrix.set(
+        1, 0, 0, transX * sliderValue,
+        0, 1, 0, transY * sliderValue,
+        0, 0, 1, transZ * sliderValue,
+        0, 0, 0, 1
+      );
+      
+      // Apply the transformation
+      selectedShape.position.set(newX, newY, newZ);
+      selectedShape.updateMatrix();
+      
+      // Update transformation matrix
+      trans_matrix.copy(translationMatrix);
+      
+      // Update shapeList entry
+      const shapeInfo = shapeList.find(s => s.id === selectedShape.userData.id);
+      if (shapeInfo) {
+        shapeInfo.x = parseFloat(selectedShape.position.x.toFixed(2));
+        shapeInfo.y = parseFloat(selectedShape.position.y.toFixed(2));
+        shapeInfo.z = parseFloat(selectedShape.position.z.toFixed(2));
       }
-    });
-  });
-
-  // Update the transformation matrix in the UI
-  if (target.value <= 0) {
-    trans_matrix.set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+      break;
+      
+    case 'scaling':
+      // Calculate new scale based on slider value
+      const newScaleX = old_scale[0] + (max_x_scale - old_scale[0]) * sliderValue;
+      const newScaleY = old_scale[1] + (max_y_scale - old_scale[1]) * sliderValue;
+      const newScaleZ = old_scale[2] + (max_z_scale - old_scale[2]) * sliderValue;
+      
+      // Create scaling matrix
+      const scalingMatrix = new THREE.Matrix4();
+      scalingMatrix.set(
+        newScaleX, 0, 0, 0,
+        0, newScaleY, 0, 0,
+        0, 0, newScaleZ, 0,
+        0, 0, 0, 1
+      );
+      
+      // Apply the transformation
+      selectedShape.scale.set(newScaleX, newScaleY, newScaleZ);
+      selectedShape.updateMatrix();
+      
+      // Update transformation matrix
+      trans_matrix.copy(scalingMatrix);
+      break;
+      
+    case 'rotation':
+      // Get rotation angle from form
+      const theta = parseFloat(document.getElementById("theta").value);
+      const axis = document.getElementById("axis-change-dropdown").value;
+      
+      console.log('Rotation parameters:', {
+        theta: theta,
+        axis: axis,
+        sliderValue: sliderValue
+      });
+      
+      // Calculate rotation angle based on slider
+      const rot_angle = theta * sliderValue;
+      console.log('Rotation angle:', rot_angle);
+      
+      // Convert angle to radians
+      const rot_angle_rad = (rot_angle * Math.PI) / 180;
+      
+      // Apply rotation based on selected axis
+      if (axis === "0") { // X-axis
+        selectedShape.rotation.x = rot_angle_rad;
+      } else if (axis === "1") { // Y-axis
+        selectedShape.rotation.y = rot_angle_rad;
+      } else if (axis === "2") { // Z-axis
+        selectedShape.rotation.z = rot_angle_rad;
+      }
+      
+      // Create rotation matrix for display
+      const rotationMatrix = new THREE.Matrix4();
+      rotationMatrix.makeRotationAxis(rot_axis, rot_angle_rad);
+      
+      // Update transformation matrix
+      trans_matrix.copy(rotationMatrix);
+      break;
   }
+  
+  // Update matrix display
+  updateMatrixDisplay();
+  
+  // Update shape list display
+  updateShapeList(shapeList);
+}
 
-  if (parseFloat(e.target.value) === parseFloat(e.target.max)) {
-    // Reset or finalize the transformation matrix
-    trans_matrix.identity(); // Start with an identity matrix
-
-    // Apply final transformations in the correct order: Scale → Rotate → Translate
-    let final_scale = new THREE.Matrix4().makeScale(
-      max_x_scale,
-      max_y_scale,
-      max_z_scale
-    );
-    let final_rotation = new THREE.Matrix4().makeRotationFromQuaternion(
-      new THREE.Quaternion().setFromAxisAngle(
-        rot_axis,
-        (parseFloat(document.getElementById("theta").value) * Math.PI) / 180
-      )
-    );
-    let final_translation = new THREE.Matrix4().makeTranslation(tx, ty, tz);
-
-    trans_matrix.multiply(final_scale); // Apply Scaling
-    trans_matrix.multiply(final_rotation); // Apply Rotation
-    trans_matrix.multiply(final_translation); // Apply Translation
-  }
-
+// Function to update matrix display
+function updateMatrixDisplay() {
   document.getElementById("matrix-00").value = trans_matrix.elements[0];
   document.getElementById("matrix-01").value = trans_matrix.elements[1];
   document.getElementById("matrix-02").value = trans_matrix.elements[2];
@@ -739,85 +815,16 @@ function movePoint(e) {
   document.getElementById("matrix-33").value = trans_matrix.elements[15];
 }
 
-// document.getElementById("frames").onchange = function () {
-//   let new_value = document.getElementById("frames").value;
-
-//   let new_factor = [frames/new_value, frames/new_value, frames/new_value];
-//   for( let i = 0; i < 3; i++ )
-//   {
-//     if( old_scale[i] === 1 )
-//     {
-//       new_factor[i] = 1;
-//     }
-//   }
-
-//   let scale_m = new THREE.Matrix4();
-//   scale_m.makeScale( new_factor[0], new_factor[1], new_factor[2] );
-//   dotList[0].geometry.applyMatrix4(scale_m);
-//   dotList[0].geometry.verticesNeedUpdate = true;
-
-//   for( let i = 0; i < 3; i++)
-//       old_scale[i] *= frames/new_value;
-
-//   trans_matrix.multiply(scale_m);
-//   document.getElementById("matrix-00").value = trans_matrix.elements[0];
-//   document.getElementById("matrix-11").value = trans_matrix.elements[5];
-//   document.getElementById("matrix-22").value = trans_matrix.elements[10];
-
-//   document.getElementById("slider").max = new_value;
-// };
-
-// document.getElementById("scale-x").onchange = function () {
-//   let new_scale = document.getElementById("scale-x").value;
-//   if( old_scale[0] !== 1 )
-//   {
-//     let scale_m = new THREE.Matrix4();
-//     scale_m.makeScale( new_scale/max_x_scale, 1, 1 );
-//     dotList[0].geometry.applyMatrix4(scale_m);
-//     dotList[0].geometry.verticesNeedUpdate = true;
-
-//     old_scale[0] *= new_scale/max_x_scale;
-
-//     trans_matrix.multiply(scale_m);
-//     document.getElementById("matrix-00").value = trans_matrix.elements[0];
-//   }
-
-//   max_x_scale = new_scale;
-// };
-// document.getElementById("scale-y").onchange = function () {
-//   let new_scale = document.getElementById("scale-y").value;
-//   if( old_scale[1] !== 1)
-//   {
-//     let scale_m = new THREE.Matrix4();
-//     scale_m.makeScale( 1, new_scale/max_y_scale, 1 );
-//     dotList[0].geometry.applyMatrix4(scale_m);
-//     dotList[0].geometry.verticesNeedUpdate = true;
-
-//     old_scale[1] *= new_scale/max_y_scale;
-
-//     trans_matrix.multiply(scale_m);
-//     document.getElementById("matrix-11").value = trans_matrix.elements[5];
-//   }
-
-//   max_y_scale = new_scale;
-// };
-// document.getElementById("scale-z").onchange = function () {
-//   let new_scale = document.getElementById("scale-z").value;
-//   if( old_scale[2] !== 1)
-//   {
-//     let scale_m = new THREE.Matrix4();
-//     scale_m.makeScale( 1, 1, new_scale/max_z_scale );
-//     dotList[0].geometry.applyMatrix4(scale_m);
-//     dotList[0].geometry.verticesNeedUpdate = true;
-
-//     old_scale[2] *= new_scale/max_z_scale;
-
-//     trans_matrix.multiply(scale_m);
-//     document.getElementById("matrix-22").value = trans_matrix.elements[10];
-//   }
-
-//   max_z_scale = new_scale;
-// }
+// Function to reset matrix to identity
+function resetMatrixToIdentity() {
+  trans_matrix.set(
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1
+  );
+  updateMatrixDisplay();
+}
 
 function createLabel(text, direction, length) {
   const fontLoader = new THREE.FontLoader();
@@ -881,76 +888,120 @@ procedureMessage.addEventListener("click", (event) => {
   event.stopPropagation(); // Prevent the click inside from closing the overlay
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+// Add event listeners for transformation forms
+document.addEventListener('DOMContentLoaded', function() {
+  // Translation form
+  const translationForm = document.getElementById("translation-form");
+  if (translationForm) {
+    translationForm.addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+      applyTranslation(event);
+    });
+  }
+
+  // Scaling form
+  const scalingForm = document.getElementById("scaling-form");
+  if (scalingForm) {
+    scalingForm.addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+      applyScaling(event);
+    });
+  }
+
+  // Rotation form
+  const rotationForm = document.getElementById("rotation-form");
+  if (rotationForm) {
+    rotationForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      console.log('Rotation form submitted');
+      
+      // Check if any shape is selected
+      const selectedShape = shapes.find(shape => shape.userData.selected);
+      if (!selectedShape) {
+        console.warn('No shape selected');
+        alert("Please select a shape first");
+        return;
+      }
+      
+      // Get rotation values from form
+      total_angle = parseFloat(document.getElementById("theta").value);
+      const axis = document.getElementById("axis-change-dropdown").value;
+      
+      // Set rotation axis based on selection
+      if (axis === "0") { // X-axis
+        rot_axis.set(1, 0, 0);
+      } else if (axis === "1") { // Y-axis
+        rot_axis.set(0, 1, 0);
+      } else if (axis === "2") { // Z-axis
+        rot_axis.set(0, 0, 1);
+      }
+      rot_axis.normalize();
+      
+      // Reset rotation state
+      present_theta = 0;
+      
+      // Reset shape rotation
+      selectedShape.rotation.set(0, 0, 0);
+      
+      // Set current transformation type
+      currentTransformationType = 'rotation';
+      
+      // Reset slider to start position
+      if (slider) {
+        slider.value = 0;
+      }
+      
+      // Update the matrix display with initial state
+      updateMatrixDisplay();
+    });
+  }
+
+  // Initialize matrix display
+  resetMatrixToIdentity();
+
   // Select the reset button
   const resetBtn = document.getElementById("reset-all-btn");
-
-  // Function to reload the page, resetting everything to default
-  function resetAllFields() {
-    location.reload(); // Reload the page to reset all elements to default
+  if (resetBtn) {
+    resetBtn.addEventListener("click", resetAllFields);
   }
 
-  // Add event listener to the reset button
-  resetBtn.addEventListener("click", resetAllFields);
+  // Add event listener for edit button
+  const editShapeBtn = document.getElementById('edit-shape-btn');
+  if (editShapeBtn) {
+    editShapeBtn.addEventListener('click', function() {
+      console.log('Edit button clicked');
+      window.editShape();
+    });
+  }
 });
 
-scene = new THREE.Scene();
-scene.background = new THREE.Color(0x333333);
-camera = new THREE.PerspectiveCamera(
-  30,
-  window.innerWidth / window.innerHeight,
-  1,
-  1000
-);
-let init = function () {
-  camera.position.set(25, 25, 25); // Set camera position behind and above the origin
-
-  camera.lookAt(10, 10, 5);
-  const light = new THREE.DirectionalLight(0xffffff, 3);
-  light.position.set(1, 1, 1).normalize();
-  scene.add(light);
-  const gridHelper = new THREE.GridHelper(size, divisions);
-  const count = 1;
-
-  const arrowHelper = [];
-  const dir = [
-    new THREE.Vector3(1, 0, 0), // +X
-    new THREE.Vector3(0, 1, 0), // +Y
-    new THREE.Vector3(0, 0, 1), // +Z
-    new THREE.Vector3(-1, 0, 0), // -X
-    new THREE.Vector3(0, -1, 0), // -Y
-    new THREE.Vector3(0, 0, -1), // -Z
-  ];
-
-  const labels = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]; // Labels for each axis
-  const origin = new THREE.Vector3(0, 0, 0);
-  const length = 10;
-
-  // Loop through the axes
-  for (let i = 0; i < 6; i++) {
-    // Determine color based on the direction
-    let color;
-    if (i === 0 || i === 3) {
-      color = "red"; // +X and -X axes
-    } else if (i === 1 || i === 4) {
-      color = "yellow"; // +Y and -Y axes
-    } else {
-      color = "blue"; // +Z and -Z axes
-    }
-
-    // Create the arrow helper for the current direction and color
-    arrowHelper[i] = new THREE.ArrowHelper(dir[i], origin, length, color);
-    scene.add(arrowHelper[i]);
-
-    // Create label for each axis and position it at the tip of the arrow
-    const label = createLabel(labels[i], dir[i], length);
-    scene.add(label);
+// Function to reset all fields
+function resetAllFields() {
+  // Clear all shapes
+  shapes.forEach(shape => {
+    scene.remove(shape);
+  });
+  shapes = [];
+  shapeList = [];
+  
+  // Reset shape counts
+  shapeCount = [0, 0, 0, 0];
+  
+  // Reset transformation matrix
+  trans_matrix.set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  updateMatrixDisplay();
+  
+  // Reset slider
+  if (slider) {
+    slider.value = 0;
   }
-
+  
+  // Reset current transformation type
+  currentTransformationType = null;
+  
+  // Create initial shapes
   createCube(
-    5,
-    1,
-    0,
+    5, 1, 0,
     shapes,
     shapeList,
     shapeCount,
@@ -963,9 +1014,7 @@ let init = function () {
   );
 
   createTetrahedron(
-    4,
-    5,
-    2,
+    4, 5, 2,
     shapes,
     shapeList,
     shapeCount,
@@ -976,28 +1025,198 @@ let init = function () {
     dragY,
     dragz
   );
-  updateShapeList(shapeList); // Update the UI
 
-  // let tri_geo = Triangle(vertexA, vertexB, vertexC, scene, dotList);
-  renderer = new THREE.WebGLRenderer();
+  createOctahedron(
+    3, 3, 3,
+    shapes,
+    shapeList,
+    shapeCount,
+    scene,
+    point,
+    shapeVertex,
+    dragX,
+    dragY,
+    dragz
+  );
+  
+  // Update shape list
+  updateShapeList(shapeList);
+}
+
+scene = new THREE.Scene();
+scene.background = new THREE.Color(0x333333);
+camera = new THREE.PerspectiveCamera(
+  30,
+  window.innerWidth / window.innerHeight,
+  1,
+  1000
+);
+let init = function () {
+  // Set up camera
+  camera.position.set(25, 25, 25);
+  camera.lookAt(10, 10, 5);
+
+  // Add lighting
+  const light = new THREE.DirectionalLight(0xffffff, 3);
+  light.position.set(1, 1, 1).normalize();
+  scene.add(light);
+
+  // Set up axis arrows
+  const dir = [
+    new THREE.Vector3(1, 0, 0),  // +X
+    new THREE.Vector3(0, 1, 0),  // +Y
+    new THREE.Vector3(0, 0, 1),  // +Z
+    new THREE.Vector3(-1, 0, 0), // -X
+    new THREE.Vector3(0, -1, 0), // -Y
+    new THREE.Vector3(0, 0, -1)  // -Z
+  ];
+
+  const labels = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"];
+  const origin = new THREE.Vector3(0, 0, 0);
+  const length = 10;
+
+  // Create axis arrows and labels
+  for (let i = 0; i < 6; i++) {
+    let color;
+    if (i === 0 || i === 3) {
+      color = "red";    // X axis
+    } else if (i === 1 || i === 4) {
+      color = "yellow"; // Y axis
+    } else {
+      color = "blue";   // Z axis
+    }
+
+    arrowHelper[i] = new THREE.ArrowHelper(dir[i], origin, length, color);
+    scene.add(arrowHelper[i]);
+
+    // Create and add labels
+    const label = createLabel(labels[i], dir[i], length);
+    if (label) {
+    scene.add(label);
+    }
+  }
+
+  // Create initial shapes
+  createCube(
+    5, 1, 0,
+    shapes,
+    shapeList,
+    shapeCount,
+    scene,
+    point,
+    shapeVertex,
+    dragX,
+    dragY,
+    dragz
+  );
+
+  createTetrahedron(
+    4, 5, 2,
+    shapes,
+    shapeList,
+    shapeCount,
+    scene,
+    point,
+    shapeVertex,
+    dragX,
+    dragY,
+    dragz
+  );
+
+  createOctahedron(
+    3, 3, 3,
+    shapes,
+    shapeList,
+    shapeCount,
+    scene,
+    point,
+    shapeVertex,
+    dragX,
+    dragY,
+    dragz
+  );
+
+  // Update shape list
+  updateShapeList(shapeList);
+
+  // Set up renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true });
   let w = container.offsetWidth;
   let h = container.offsetHeight;
   renderer.setSize(w, 0.83 * h);
   container.appendChild(renderer.domElement);
+
+  // Set up orbit controls
   orbit = new OrbitControls(camera, renderer.domElement);
   orbit.mouseButtons = {
     LEFT: MOUSE.PAN,
     MIDDLE: MOUSE.DOLLY,
-    RIGHT: MOUSE.ROTATE,
+    RIGHT: MOUSE.ROTATE
   };
   orbit.target.set(0, 0, 0);
   orbit.enableDamping = true;
+  orbit.dampingFactor = 0.05;
+  orbit.update();
 };
+
 let mainLoop = function () {
-  orbit.update(); // Important for damping
+  orbit.update();
   camera.updateMatrixWorld();
   renderer.render(scene, camera);
   requestAnimationFrame(mainLoop);
 };
+
+// Start the application
 init();
 mainLoop();
+
+// Shape edit button handler
+document.querySelector('.edit-button').addEventListener('click', function() {
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (selectedShape) {
+    const x = parseFloat(document.getElementById('x').value);
+    const y = parseFloat(document.getElementById('y').value);
+    const z = parseFloat(document.getElementById('z').value);
+
+    // Validate coordinates
+    if (isNaN(x) || isNaN(y) || isNaN(z)) {
+      alert('Please enter valid numeric coordinates');
+      return;
+    }
+
+    // Update shape position
+    selectedShape.position.set(x, y, z);
+    selectedShape.updateMatrix();
+    
+    // Update shapeList entry
+    const index = shapes.indexOf(selectedShape);
+    if (index !== -1) {
+      shapeList[index].x = x;
+      shapeList[index].y = y;
+      shapeList[index].z = z;
+    }
+
+    // Update UI
+    updateShapeList(shapeList);
+    editModal.style.display = "none";
+  }
+});
+
+// Edit shape button click handler
+window.editShape = function() {
+  // Check if any shape is selected
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (!selectedShape) {
+    alert('Select a shape first');
+    return;
+  }
+  
+  // Fill the modal fields with current values
+  document.getElementById('x').value = selectedShape.position.x;
+  document.getElementById('y').value = selectedShape.position.y;
+  document.getElementById('z').value = selectedShape.position.z;
+  document.getElementById('shape-edit-dropdown').value = selectedShape.name;
+  
+  // Show the modal
+  editModal.style.display = "block";
+};
