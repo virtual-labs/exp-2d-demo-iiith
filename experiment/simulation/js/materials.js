@@ -22,18 +22,57 @@ function fragmentShader() {
                     }`;
 }
 
-
 export function createMaterials() {
-    const cubeShader = new THREE.ShaderMaterial({
-        uniforms: {
-            colorA: { type: "vec3", value: new THREE.Color(0xff0000) },
-            colorB: { type: "vec3", value: new THREE.Color(0x0000ff) },
-        },
-        vertexShader: vertexShader(),
-        fragmentShader: fragmentShader(),
-    });
+    try {
+        // Create materials with proper colors and transparency
+        const cubeShader = new THREE.MeshBasicMaterial({ 
+            color: 0xff0000, // Red
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.8
+        });
 
-    return {
-        cubeShader,
-    };
+        const tetrahedronShader = new THREE.MeshBasicMaterial({ 
+            color: 0x00ff00, // Green
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const octahedronShader = new THREE.MeshBasicMaterial({ 
+            color: 0x0000ff, // Blue
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        // Ensure materials are properly initialized
+        cubeShader.needsUpdate = true;
+        tetrahedronShader.needsUpdate = true;
+        octahedronShader.needsUpdate = true;
+
+        // Validate materials
+        if (!cubeShader || !tetrahedronShader || !octahedronShader) {
+            throw new Error('Failed to create materials');
+        }
+
+        return {
+            cubeShader,
+            tetrahedronShader,
+            octahedronShader
+        };
+    } catch (error) {
+        console.error('Error creating materials:', error);
+        // Return basic materials as fallback
+        const fallbackMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xff0000,
+            side: THREE.DoubleSide
+        });
+        fallbackMaterial.needsUpdate = true;
+        return {
+            cubeShader: fallbackMaterial,
+            tetrahedronShader: fallbackMaterial,
+            octahedronShader: fallbackMaterial
+        };
+    }
 }

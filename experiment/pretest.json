@@ -24,11 +24,11 @@
   {
     "question": "3. Is S<sub>1</sub>T<sub>1</sub>S<sub>2</sub>T<sub>2</sub> = T<sub>2</sub>S<sub>2</sub>T<sub>1</sub>S<sub>1</sub> ?",
     "answers": {
-      "a": "True",
-      "b": "False",
-      "c": "Valid",
-      "d": "Not Valid"
+      "a": "Yes, because scaling and translation operations are commutative",
+      "b": "No, because the order of operations matters in matrix multiplication",
+      "c": "Yes, because all transformation operations are commutative",
+      "d": "No, because scaling and translation operations are not commutative"
     },
-    "correctAnswer": "c"
+    "correctAnswer": "a"
   }
 ]

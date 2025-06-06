@@ -4,11 +4,22 @@ M = R<sub>x</sub>TR<sub>y</sub>ST
 
 **NOTE**- All Operations are associative but not commutative.
 
+* Let's define multiple transformations:
+  - T<sub>1</sub>, T<sub>2</sub>: Two different translation matrices
+  - S<sub>1</sub>, S<sub>2</sub>: Two different scaling matrices
+  - R<sub>1</sub>, R<sub>2</sub>: Two different rotation matrices
+
 * Translations are commutative: T<sub>1</sub>T<sub>2</sub> = T<sub>2</sub>T<sub>1</sub>
+  - This means applying two translations in any order gives the same result
+  - Example: Moving right then up is the same as moving up then right
 
 * Scaling is commutative: S<sub>1</sub>S<sub>2</sub> = S<sub>2</sub>S<sub>1</sub>
+  - This means applying two scaling operations in any order gives the same result
+  - Example: Scaling by 2 then 3 is the same as scaling by 3 then 2
 
 * Rotations are NOT commutative: R<sub>1</sub>R<sub>2</sub> !=  R<sub>2</sub>R<sub>1</sub>
+  - This means the order of rotations matters
+  - Example: Rotating around X-axis then Y-axis gives a different result than rotating around Y-axis then X-axis
 
 <!-- Also RT != TR. Consider the following matrix representation. -->
 
