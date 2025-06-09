@@ -2,6 +2,7 @@
   "unit-type": "lu",
   "label": "",
   "basedir": ".",
+  "LaTeXinMD": "true",
   "units": [
     {
       "unit-type": "aim"
@@ -42,6 +43,13 @@
       "content-type": "simulation"
     },
     {
+      "target": "posttest.html",
+      "source": "posttest.json",
+      "label": "Posttest",
+      "unit-type": "task",
+      "content-type": "assesment"
+    },
+    {
       "target": "references.html",
       "source": "references.md",
       "label": "References",
@@ -50,4 +58,3 @@
     }
   ]
 }
-

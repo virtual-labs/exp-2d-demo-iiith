@@ -1,5 +1,3 @@
-# References
-
 ## Books
 1. Foley, J. D., van Dam, A., Feiner, S. K., & Hughes, J. F. (1995). Computer Graphics: Principles and Practice. Addison-Wesley Professional.
    - Comprehensive coverage of 3D transformations and matrices
@@ -60,4 +58,4 @@
 
 2. [The Coding Train - 3D Transformations](https://thecodingtrain.com/tracks/3d-transformations)
    - Practical coding examples
-   - Step-by-step tutorials
+   - Step-by-step tutorials 
